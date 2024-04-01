@@ -1,0 +1,49 @@
+<body>
+  <script>
+    function reducer(state, action) {
+      switch (action) {
+        case "INCREMENT":
+          return { value: state.value + 1 };
+        case "DECREMENT":
+          return { value: state.value - 1 };
+        default:
+          return state;
+      }
+    }
+
+    function createStore(reducer, init) {
+      let state = init;
+      const subscribers = [];
+
+      const dispatch = (action) => {
+        state = reducer(state, action);
+        subscribers.forEach((fn) => fn());
+      };
+
+      const subscribe = (fn) => {
+        subscribers.push(fn);
+
+        return () => subscribers.filter((curr) => curr !== fn);
+      };
+
+      const getState = () => state;
+
+      return { state, getState, dispatch, subscribe };
+    }
+
+    const { getState, dispatch, subscribe } = createStore(reducer, {
+      value: 0,
+    });
+
+    document.addEventListener("click", () => {
+      dispatch("INCREMENT");
+    });
+    render();
+
+    function render() {
+      document.body.innerHTML = getState().value;
+    }
+
+    subscribe(render);
+  </script>
+</body>
